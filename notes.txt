@@ -1,0 +1,18 @@
+by Daniel Feng
+
+For the traffic light recognition, the approach I used mainly relies on the near perfectly circular shape of the traffic lights and the limited range of colors they take. In short, I will use circle detection and color bounding technique to separate out the traffic lights.
+
+Specifically, I first use bilateral filter to smooth out image detail and create 3 masks to filter out the color in the image that falls into the target range (which is set based on traffic light's hsv value range). I then use gaussian blur on each mask to smooth out edges of the object for easier circle recognition. After which HoughCircles function from cv2 is used to recognize edges of circles. However, the resulting candidates from HoughCircles are not accurate enough, with lots of irrelevant objects detected as circle. As a result, I compute the average hue, saturation, and brightness in each bounding circle and test if they fall into a loose color range for traffic lights. Furthermore, I removed the candidates that lie in the bottom 25% of the image as it's very unlikely traffic light will fall into that region under normal circumstances.
+
+The result computed from the aforementioned algorithm has a fairly high fidelity, with occationally extra objects detected that looks very similiar to traffic light. The problem can possibly be solved by computing average traffic light candidates radius and throw away candidates with abnormally small/large radius, as traffic lights in one image are usually about the same size.
+
+
+
+Note:
+	Inside src/visualize.py there are a few boolean on top of the file that can be tweaked,
+	this might help better understanding the process and result.
+
+	e.g.
+	show_filter_layers: if wanna see how color is filtered, set to True
+	save_result: if results are to be shown instead of saved, set to False
+	SAVE_PATH: the path results are saved to

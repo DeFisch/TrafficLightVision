@@ -1,9 +1,15 @@
-import numpy as np
+
 import cv2 as cv
+import os
 
-num_data = 14
-index = np.linspace(1,num_data,num=num_data,dtype=int)
 images = []
+folder = '../data/'
+for filename in os.listdir(folder):
+    file_path = os.path.join(folder, filename)
+    if file_path.endswith('.png'):
+        try:
+            images.append(cv.imread(file_path,cv.IMREAD_UNCHANGED))
+        except Exception as e:
+            print(f'Failed to read {file_path}: {e}')
 
-for i in index:
-    images.append(cv.imread(f'../data/{i}.jpg'))
+    

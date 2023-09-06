@@ -19,7 +19,7 @@ def detect_img(img,show_layers): # show_layers: show filtered color layers if Tr
     lower_red2 = np.array([170,30,200])
     upper_red2 = np.array([180,255,255])
     lower_green = np.array([50,60,200])
-    upper_green = np.array([95,255,255])
+    upper_green = np.array([90,255,255])
     lower_yellow = np.array([22,115,210])
     upper_yellow = np.array([33,255,255])
     maskr1 = cv.inRange(hsv, lower_red1, upper_red1)
@@ -35,11 +35,12 @@ def detect_img(img,show_layers): # show_layers: show filtered color layers if Tr
 
     # show filtered color layers
     if show_layers:
-        cv.imshow('red',maskr)
-        cv.waitKey(0)  
-        cv.imshow('yellow',masky)
-        cv.waitKey(0)  
-        cv.imshow('green',maskg)
+        layers = np.concatenate((maskr, masky, maskg), axis=1)
+        height, width = layers.shape
+        cv.putText(layers,'Red Mask',(int(0*width/3),int(height/10)),5,5,(255,255,255),3)
+        cv.putText(layers,'Yellow Mask',(int(1*width/3),int(height/10)),5,5,(255,255,255),3)
+        cv.putText(layers,'Green Mask',(int(2*width/3),int(height/10)),5,5,(255,255,255),3)
+        cv.imshow('image',layers)
         cv.waitKey(0)
 
     # compress image if it's too large
@@ -49,12 +50,12 @@ def detect_img(img,show_layers): # show_layers: show filtered color layers if Tr
     min_dist = 50
 
     # hough circle detection with limits on circle size, distance, and perfectness
-    red_circles = cv.HoughCircles(maskr, cv.HOUGH_GRADIENT_ALT, dp, min_dist,
-                               param1=30, param2=.5, minRadius=0, maxRadius=1000)
-    green_circles = cv.HoughCircles(maskg, cv.HOUGH_GRADIENT_ALT, dp, min_dist,
-                               param1=30, param2=.75, minRadius=0, maxRadius=1000)
-    yellow_circles = cv.HoughCircles(masky, cv.HOUGH_GRADIENT_ALT, dp, min_dist,
-                               param1=30, param2=.5, minRadius=0, maxRadius=1000)
+    red_circles = cv.HoughCircles(maskr, cv.HOUGH_GRADIENT, dp, min_dist,
+                               param1=30, param2=10, minRadius=0, maxRadius=10)
+    green_circles = cv.HoughCircles(maskg, cv.HOUGH_GRADIENT, dp, min_dist,
+                               param1=30, param2=5, minRadius=0, maxRadius=10)
+    yellow_circles = cv.HoughCircles(masky, cv.HOUGH_GRADIENT, dp, min_dist,
+                               param1=30, param2=10, minRadius=0, maxRadius=10)
     
     circles = [red_circles,yellow_circles,green_circles]
     colors = ['red', 'yellow', 'green']
@@ -68,18 +69,14 @@ def detect_img(img,show_layers): # show_layers: show filtered color layers if Tr
                 rad = math.floor(circle[2]/(math.sqrt(2)))
                 # crop out traffic light candidates
                 cropped_bgr = img[y-rad:y+rad,x-rad:x+rad]
-                bgr_var = np.var(cropped_bgr[:,:,0])+np.var(cropped_bgr[:,:,1])+np.var(cropped_bgr[:,:,2])
-                bgr_var = int(bgr_var)
                 # calculate candidates' mean hue, saturation, and value in the bounding circle
                 avg_hue,avg_sat,avg_val=rgb_to_hsv(int(np.mean(cropped_bgr[:,:,2])),int(np.mean(cropped_bgr[:,:,1])),int(np.mean(cropped_bgr[:,:,0])))
                 # remove candidate if mean hue, saturation, and value does not match
-                if (i == 0 and (18 < avg_hue < 160 or avg_sat < 120 or avg_val < 170)) or (i == 1 and (not(18 < avg_hue < 33) or not(200 < avg_val < 255))) or (i == 2 and (not(50 < avg_hue < 95))):
+                if (i == 0 and (18 < avg_hue < 160 or avg_sat < 100 or avg_val < 170)) or (i == 1 and (not(18 < avg_hue < 33) or not(200 < avg_val < 255))) or (i == 2 and (not(50 < avg_hue < 90))):
                     del_idx.append(j)
                 # remove candidates on the lower 25% of the screen
                 elif circle[1] > 0.75*height:
                     del_idx.append(j)
-                else:
-                    print(f'{colors[i]} traffic light at: {circle[0]}, {circle[1]}')
                 j+=1
         # remove all the non-candidates
         for idx in reversed(del_idx):
