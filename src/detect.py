@@ -70,7 +70,7 @@ def detect_img(img,show_layers): # show_layers: show filtered color layers if Tr
                 cropped_bgr = img[y-rad:y+rad,x-rad:x+rad]
                 bgr_var = np.var(cropped_bgr[:,:,0])+np.var(cropped_bgr[:,:,1])+np.var(cropped_bgr[:,:,2])
                 bgr_var = int(bgr_var)
-                # calculate regional mean hue, saturation, and value
+                # calculate candidates' mean hue, saturation, and value in the bounding circle
                 avg_hue,avg_sat,avg_val=rgb_to_hsv(int(np.mean(cropped_bgr[:,:,2])),int(np.mean(cropped_bgr[:,:,1])),int(np.mean(cropped_bgr[:,:,0])))
                 # remove candidate if mean hue, saturation, and value does not match
                 if (i == 0 and (18 < avg_hue < 160 or avg_sat < 120 or avg_val < 170)) or (i == 1 and (not(18 < avg_hue < 33) or not(200 < avg_val < 255))) or (i == 2 and (not(50 < avg_hue < 95))):

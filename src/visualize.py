@@ -7,7 +7,9 @@ import cv2 as cv
 images = data.images
 sub_image = []
 sub_image.append(images[11])
+cnt = 1
 for img in images:
+    print(f'\n\n\nimage {cnt}: ')
     # get results from the computation
     show_filter_layers = False # if wanna see how color is filtered, set to True
     [reds, yellows, greens] = det.detect_img(img,show_filter_layers)
@@ -29,5 +31,6 @@ for img in images:
                 
     cv.imshow('display',img_cpy)
     cv.waitKey(0)
+    cnt += 1
 
 
