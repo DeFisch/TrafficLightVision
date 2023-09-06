@@ -3,14 +3,17 @@ import detect as det
 import matplotlib.pyplot as plt
 import cv2 as cv
 
-# prepare and compute circles
+# load images
 images = data.images
 sub_image = []
 sub_image.append(images[11])
 for img in images:
-    [reds, yellows, greens] = det.detect_img(img)
+    # get results from the computation
+    show_filter_layers = False # if wanna see how color is filtered, set to True
+    [reds, yellows, greens] = det.detect_img(img,show_filter_layers)
     circles = [reds,yellows,greens]
     colors = ['RED','YELLOW','GREEN']
+    # define color for labels
     color_val = [(61,61,255),(0,206,229),(0,174,17)]
 
     # visualize data
